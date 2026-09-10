@@ -265,6 +265,7 @@ These modules are designed to be:
 See the documents in the `docs/` folder for detailed explanations:
 
 - [docs/architecture-diagram.md](docs/architecture-diagram.md)
+- [docs/technical-design.md](docs/technical-design.md)
 - [docs/module-documentation.md](docs/module-documentation.md)
 - [docs/terraform-flow.md](docs/terraform-flow.md)
 - [docs/github-actions-flow.md](docs/github-actions-flow.md)
