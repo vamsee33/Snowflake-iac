@@ -1,0 +1,10 @@
+subscription_id                  = "00000000-0000-0000-0000-000000000000"
+automation_resource_group_name   = "rg-automation"
+automation_account_name          = "aa-cosmos-key-rotation"
+
+key_secret_names = {
+  primary_readwrite   = "cosmos-primary-readwrite-key"
+  secondary_readwrite = "cosmos-secondary-readwrite-key"
+  primary_readonly    = "cosmos-primary-readonly-key"
+  secondary_readonly  = "cosmos-secondary-readonly-key"
+}
