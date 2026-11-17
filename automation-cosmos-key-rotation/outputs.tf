@@ -19,11 +19,11 @@ output "managed_identity_principal_id" {
 }
 
 output "runbook_names" {
-  description = "Names of the four deployed Cosmos DB key rotation runbooks."
+  description = "Names of the primary and secondary Cosmos DB and Storage Account key rotation runbooks."
   value       = { for name, runbook in azurerm_automation_runbook.rotation : name => runbook.name }
 }
 
 output "key_vault_secret_names" {
-  description = "Key Vault secret names configured for the rotated Cosmos DB keys."
+  description = "The six Key Vault secret names written by the primary and secondary runbooks."
   value       = local.key_secret_names
 }

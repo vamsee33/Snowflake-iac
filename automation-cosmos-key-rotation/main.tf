@@ -1,35 +1,29 @@
 locals {
   key_secret_names = {
-    primary_readwrite   = var.key_secret_names.primary_readwrite
-    secondary_readwrite = var.key_secret_names.secondary_readwrite
-    primary_readonly    = var.key_secret_names.primary_readonly
-    secondary_readonly  = var.key_secret_names.secondary_readonly
+    cosmos_primary_readwrite   = var.key_secret_names.cosmos_primary_readwrite
+    cosmos_secondary_readwrite = var.key_secret_names.cosmos_secondary_readwrite
+    cosmos_primary_readonly    = var.key_secret_names.cosmos_primary_readonly
+    cosmos_secondary_readonly  = var.key_secret_names.cosmos_secondary_readonly
+    storage_primary            = var.key_secret_names.storage_primary
+    storage_secondary          = var.key_secret_names.storage_secondary
   }
 
   runbooks = {
-    regenerate_primary_readwrite = {
-      key_kind    = "primary"
-      secret_name = local.key_secret_names.primary_readwrite
-      script      = "regenerate-primary-readwrite.ps1"
-      description = "Regenerates and stores the Cosmos DB primary read-write key."
+    regenerate_primary = {
+    #   key_kind             = "primary"
+      cosmos_readwrite_key = local.key_secret_names.cosmos_primary_readwrite
+      cosmos_readonly_key  = local.key_secret_names.cosmos_primary_readonly
+      storage_key          = local.key_secret_names.storage_primary
+      script               = "regenerate-primary.ps1"
+      description          = "Regenerates and stores primary Cosmos DB and Storage Account keys."
     }
-    regenerate_secondary_readwrite = {
-      key_kind    = "secondary"
-      secret_name = local.key_secret_names.secondary_readwrite
-      script      = "regenerate-secondary-readwrite.ps1"
-      description = "Regenerates and stores the Cosmos DB secondary read-write key."
-    }
-    regenerate_primary_readonly = {
-      key_kind    = "primaryReadonly"
-      secret_name = local.key_secret_names.primary_readonly
-      script      = "regenerate-primary-readonly.ps1"
-      description = "Regenerates and stores the Cosmos DB primary read-only key."
-    }
-    regenerate_secondary_readonly = {
-      key_kind    = "secondaryReadonly"
-      secret_name = local.key_secret_names.secondary_readonly
-      script      = "regenerate-secondary-readonly.ps1"
-      description = "Regenerates and stores the Cosmos DB secondary read-only key."
+    regenerate_secondary = {
+      key_kind             = "secondary"
+      cosmos_readwrite_key = local.key_secret_names.cosmos_secondary_readwrite
+      cosmos_readonly_key  = local.key_secret_names.cosmos_secondary_readonly
+      storage_key          = local.key_secret_names.storage_secondary
+      script               = "regenerate-secondary.ps1"
+      description          = "Regenerates and stores secondary Cosmos DB and Storage Account keys."
     }
   }
 }
@@ -112,9 +106,13 @@ resource "azurerm_automation_runbook" "rotation" {
     cosmos_account_name        = azurerm_cosmosdb_account.cosmos.name
     cosmos_resource_group_name = azurerm_cosmosdb_account.cosmos.resource_group_name
     cosmos_account_id          = azurerm_cosmosdb_account.cosmos.id
+    storage_account_name       = azurerm_storage_account.storage.name
+    storage_resource_group_name = azurerm_storage_account.storage.resource_group_name
     key_vault_name             = azurerm_key_vault.vault.name
-    secret_name                = each.value.secret_name
-    key_kind                   = each.value.key_kind
+    # key_kind                   = each.value.key_kind
+    cosmos_readwrite_secret    = each.value.cosmos_readwrite_key
+    cosmos_readonly_secret     = each.value.cosmos_readonly_key
+    storage_secret             = each.value.storage_key
   })
 
   depends_on = [
@@ -122,6 +120,15 @@ resource "azurerm_automation_runbook" "rotation" {
     azurerm_automation_runtime_environment_package.az_cosmosdb,
     azurerm_automation_runtime_environment_package.az_key_vault,
     azurerm_role_assignment.cosmos_key_rotation,
+    azurerm_role_assignment.storage_key_operator,
     azurerm_role_assignment.key_vault_secret_writer,
   ]
+}
+
+resource "azurerm_role_assignment" "storage_key_operator" {
+  scope                            = azurerm_storage_account.storage.id
+  role_definition_name             = "Storage Account Key Operator Service Role"
+  principal_id                     = azurerm_automation_account.rotation.identity[0].principal_id
+  principal_type                   = "ServicePrincipal"
+  skip_service_principal_aad_check = true
 }

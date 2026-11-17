@@ -3,8 +3,10 @@ automation_resource_group_name   = "rg-automation"
 automation_account_name          = "aa-cosmos-key-rotation"
 
 key_secret_names = {
-  primary_readwrite   = "cosmos-primary-readwrite-key"
-  secondary_readwrite = "cosmos-secondary-readwrite-key"
-  primary_readonly    = "cosmos-primary-readonly-key"
-  secondary_readonly  = "cosmos-secondary-readonly-key"
+  cosmos_primary_readwrite   = "cosmos-primary-readwrite-key"
+  cosmos_secondary_readwrite = "cosmos-secondary-readwrite-key"
+  cosmos_primary_readonly    = "cosmos-primary-readonly-key"
+  cosmos_secondary_readonly  = "cosmos-secondary-readonly-key"
+  storage_primary            = "storage-primary-key"
+  storage_secondary          = "storage-secondary-key"
 }

@@ -14,25 +14,29 @@ variable "automation_account_name" {
 }
 
 variable "key_secret_names" {
-  description = "Key Vault secret names that will receive the four rotated Cosmos DB keys."
+  description = "Key Vault secret names for the four Cosmos DB keys and two Storage Account keys."
   type = object({
-    primary_readwrite   = string
-    secondary_readwrite = string
-    primary_readonly    = string
-    secondary_readonly  = string
+    cosmos_primary_readwrite   = string
+    cosmos_secondary_readwrite = string
+    cosmos_primary_readonly    = string
+    cosmos_secondary_readonly  = string
+    storage_primary            = string
+    storage_secondary          = string
   })
 
   default = {
-    primary_readwrite   = "cosmos-primary-readwrite-key"
-    secondary_readwrite = "cosmos-secondary-readwrite-key"
-    primary_readonly    = "cosmos-primary-readonly-key"
-    secondary_readonly  = "cosmos-secondary-readonly-key"
+    cosmos_primary_readwrite   = "cosmos-primary-readwrite-key"
+    cosmos_secondary_readwrite = "cosmos-secondary-readwrite-key"
+    cosmos_primary_readonly    = "cosmos-primary-readonly-key"
+    cosmos_secondary_readonly  = "cosmos-secondary-readonly-key"
+    storage_primary            = "storage-primary-key"
+    storage_secondary          = "storage-secondary-key"
   }
 
   validation {
-    condition = length(distinct(values(var.key_secret_names))) == 4 && alltrue([
+    condition = length(distinct(values(var.key_secret_names))) == 6 && alltrue([
       for secret_name in values(var.key_secret_names) : can(regex("^[A-Za-z0-9-]{1,127}$", secret_name))
     ])
-    error_message = "Key Vault secret names must be distinct, 1-127 characters, and contain only letters, numbers, and hyphens."
+    error_message = "All six Key Vault secret names must be distinct, 1-127 characters, and contain only letters, numbers, and hyphens."
   }
 }
